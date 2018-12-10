@@ -5,6 +5,8 @@ Friend Module Excel
 
     Property WorkSheetName As String
 
+    Property LimitRows As Integer
+
     Property ExportedIndices As New List(Of Integer)
 
     ''' <summary>
@@ -40,7 +42,9 @@ Friend Module Excel
             End If
         Next
 
-        For row = 0 To DGV.Rows.Count - 1
+        Dim rowsQty As Integer = If(((LimitRows = 0) Or LimitRows > DGV.Rows.Count), DGV.Rows.Count - 1, LimitRows - 1)
+
+        For row = 0 To rowsQty
             counter = 0
             For col = 0 To DGV.Columns.Count - 1
                 If ExportedIndices.Contains(col) Then
@@ -52,28 +56,41 @@ Friend Module Excel
         Next
         ws.Columns.EntireColumn.AutoFit()
         app.DisplayAlerts = False
-        SaveExcelDialog(wb)
+        Dim res = SaveExcelDialog(wb)
         app.Quit()
+        If res.Saved Then
+            Process.Start(res.Dir)
+        End If
     End Sub
 
-    Private Sub SaveExcelDialog(ByRef WorkBookFile As Workbook)
+
+
+    Private Function SaveExcelDialog(ByRef WorkBookFile As Workbook) As Object
         Dim save As New SaveFileDialog() With {
             .Title = "Save as Excel File...",
             .Filter = "Excel Workbook (2013-2016)|*.xlsx|Excel Workbook (97-2003)|*.xls",
             .FileName = "Ventas",
             .DefaultExt = ".xlsx"
         }
+
+        Dim res As New responseDialog
+
         If save.ShowDialog() = DialogResult.OK Then
             WorkBookFile.SaveCopyAs(save.FileName)
             WorkBookFile.Saved = True
             MsgBox("Saved Successfully!")
-            If OpenAfterSaved Then
-                Process.Start(save.FileName)
-            End If
+            res.Saved = True
+            res.Dir = save.FileName
+            Return res
         Else
             WorkBookFile.Saved = False
+            Return res
         End If
-    End Sub
+    End Function
 
+    Public Structure responseDialog
+        Public Property Saved As Boolean
+        Property Dir As String
+    End Structure
 
 End Module

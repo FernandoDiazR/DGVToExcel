@@ -25,7 +25,7 @@ Public Class DatabaseConnection
         Dim dt As DataTable = New DataTable()
         Using sqlconnection = InitCon()
             sqlconnection.Open()
-            Dim cmd As SqlCommand = New SqlCommand("SELECT TOP 20 * FROM Vista_Ventas_DW", sqlconnection)
+            Dim cmd As SqlCommand = New SqlCommand("SELECT * FROM Vista_Ventas_DW", sqlconnection)
             Dim da As SqlDataAdapter = New SqlDataAdapter(cmd)
             da.Fill(dt)
             MyDataTableUTF8(dt)

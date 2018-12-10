@@ -2,13 +2,13 @@
 Imports System.Data.SqlClient
 Public Class DataWarehouse
     Private ReadOnly conString = "Data Source=" + ISConf.Server + ";Initial Catalog=master;Integrated Security=SSPI;"
-    Private IntegrationServices As IntegrationServices
+    Public IntegrationServices As IntegrationServices
     Private Catalog As Catalog
     Private Folder As CatalogFolder
     Private Project As ProjectInfo
     Private Package As PackageInfo
 
-    Public Sub CreateDW()
+    Private Sub CreateDW()
         Using con As New SqlConnection(conString)
             Me.IntegrationServices = New IntegrationServices(con)
             Me.Catalog = IntegrationServices.Catalogs("SSISDB")
@@ -19,7 +19,7 @@ Public Class DataWarehouse
         End Using
     End Sub
 
-    Public Sub ImportDataToDW()
+    Private Sub ImportDataToDW()
         Using con As New SqlConnection(conString)
             Me.IntegrationServices = New IntegrationServices(con)
             Me.Catalog = IntegrationServices.Catalogs("SSISDB")
@@ -30,5 +30,12 @@ Public Class DataWarehouse
         End Using
     End Sub
 
+
+    Public Sub RecreateDW()
+        CreateDW()
+        System.Threading.Thread.Sleep(1000)
+        ImportDataToDW()
+        System.Threading.Thread.Sleep(3000)
+    End Sub
 
 End Class
